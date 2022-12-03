@@ -13,6 +13,14 @@ class Price(BaseModel):
         orm_mode = True
 
 
+class PriceInfo(Price):
+    model: str 
+    name: str
+
+    class Config:
+        orm_mode = True
+
+
 class ProductSpec(BaseModel):
     retailer: str # could create custom type
     manufacturer: str

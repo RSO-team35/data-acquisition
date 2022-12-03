@@ -1,9 +1,6 @@
 # data-acquisition
 Microsevice that acquires data for price comparison
 
-python3 -m pip install strawberry-graphql[fastapi]
-
-
 
 Run server for development (reloads when code changes are saved)
 

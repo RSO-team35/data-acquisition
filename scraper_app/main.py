@@ -12,3 +12,7 @@ def get_prices(items: List[schemas.ProductSpec]):
     prices = utility.get_all_prices(items)
     return prices
 
+@app.get("/prices/", response_model=List[schemas.PriceInfo])
+def get_prices():
+    prices = utility.get_all_prices2()
+    return prices
