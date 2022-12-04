@@ -29,7 +29,7 @@ def get_all_prices2():
     headers = {
     'accept': 'application/json',
     }
-    response = requests.get(f"http://{data_keeping_ip}/product/urls/", headers=headers)
+    response = requests.get(f"http://{data_keeping_ip}/products/urls/", headers=headers)
     urls = response.json()
 
     prices = []
