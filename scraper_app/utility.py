@@ -101,8 +101,9 @@ def get_price_amazon(item: schemas.ProductSpec):
         if price is None:
             price_item.price = -1
         else:
-            price = price_text.strip("\n \xa0€").replace(',','') # remove newlines and currency characters and localize number
+            price = price_text.strip("\n \xa0€").replace(',','').replace('.','') # remove newlines and currency characters and localize number
             price = float(price)
+            price /= 100 # sometimes , and . are swapped so just use cents
             price_item.price = price 
 
     except:
