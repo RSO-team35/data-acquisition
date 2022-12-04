@@ -89,18 +89,19 @@ def get_price_amazon(item: schemas.ProductSpec):
                                 manufacturer=item.manufacturer)
 
     try:
-        response = requests.get(item.url)
+        headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:80.0) Gecko/20100101 Firefox/80.0'}
+        response = requests.get(item.url, headers=headers)
         if not response.ok:
             print(f"Response: {response.status_code}")
             return price_item
-
-        soup = BeautifulSoup(response.content, 'lxml')
-        dom = et.HTML(str(soup))
-        price = dom.xpath('//span[@class="a-offscreen"]/text()')[0]
+        soup = BeautifulSoup(response.text, "lxml")
+        price_container = soup.find(class_="a-offscreen", recursive=True) # price container on amazon
+        price_text = price_container.text
+        
         if price is None:
             price_item.price = -1
         else:
-            price = price.replace(',', '').replace('€', '')
+            price = price_text.strip("\n \xa0€").replace(',','') # remove newlines and currency characters and localize number
             price = float(price)
             price_item.price = price 
 
