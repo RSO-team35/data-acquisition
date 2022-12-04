@@ -34,6 +34,7 @@ def get_all_prices2():
 
     prices = []
     for u in urls:
+        print("-"*30)
         item = schemas.ProductSpec(**u)
 
         if item.retailer == "Mimovrste":
@@ -42,10 +43,11 @@ def get_all_prices2():
             item_price = get_price_amazon(item)
         else:
             print(f"Incorrect retailer name: {item.retailer}")
-
+        
+        print(item_price)
         price = schemas.PriceInfo(model=item.model, name=item.name, price=item_price.price, date=item_price.date, retailer=item_price.retailer, manufacturer=item_price.manufacturer)
         prices.append(price)
-    print(prices)
+    #print(prices)
     return prices
 
 
@@ -91,22 +93,29 @@ def get_price_amazon(item: schemas.ProductSpec):
     try:
         headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:80.0) Gecko/20100101 Firefox/80.0'}
         response = requests.get(item.url, headers=headers)
+        print(response.status_code)
         if not response.ok:
             print(f"Response: {response.status_code}")
             return price_item
+
+        print(response.text)
         soup = BeautifulSoup(response.text, "lxml")
+        print(soup)
         price_container = soup.find(class_="a-offscreen", recursive=True) # price container on amazon
-        price_text = price_container.text
-        
+        print(price_container)
+        price = price_container.text
+        print(price)
         if price is None:
             price_item.price = -1
         else:
-            price = price_text.strip("\n \xa0€").replace(',','').replace('.','') # remove newlines and currency characters and localize number
+            price = price.strip("\n \xa0€").replace(',','').replace('.','') # remove newlines and currency characters and localize number
             price = float(price)
             price /= 100 # sometimes , and . are swapped so just use cents
+            print(f"final price: {price}")
             price_item.price = price 
 
-    except:
+    except Exception as e:
+        print(e)
         return price_item
 
     return price_item
