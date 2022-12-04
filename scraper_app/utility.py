@@ -25,7 +25,7 @@ def get_all_prices(items: List[schemas.ProductSpec]) -> List[schemas.Price]:
 
 def get_all_prices2():
     # get links
-    data_keeping_ip = os.environ["data_keeping_ip"]
+    data_keeping_ip = os.environ["DATA_KEEPING_IP"]
     headers = {
     'accept': 'application/json',
     }
