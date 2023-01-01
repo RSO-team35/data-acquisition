@@ -18,22 +18,30 @@ tags_metadata = [
 
 
 app = FastAPI(title="Price scraper", description=description, openapi_tags=tags_metadata, docs_url="/openapi")
+app.processing = False
+app.rate = -1
 
 
-@app.post("/prices/", response_model=List[schemas.Price], tags=["prices"])
-def get_prices(items: List[schemas.ProductSpec]):
-    """
-    Returns list of new prices for products sent
-    """
-    prices = utility.get_all_prices(items)
-    return prices
+# @app.post("/prices/", response_model=List[schemas.Price], tags=["prices"])
+# def get_prices(items: List[schemas.ProductSpec]):
+#     """
+#     Returns list of new prices for products sent
+#     """
+#     prices = utility.get_all_prices(items)
+#     return prices
 
 @app.get("/prices/", response_model=List[schemas.PriceInfo], tags=["prices"])
 def get_prices():
     """
     Gets new prices for all products
     """
-    prices = utility.get_all_prices2()
+    app.processing = True
+    if app.rate < 0:
+        print(f"Getting price conversion rates")
+        app.rate = utility.get_rate() # free is only once a day - also updated once a day
+    rate = app.rate if app.rate > 0 else 0.93
+    prices = utility.get_all_prices2(rate)
+    app.processing = False
     return prices
 
 
