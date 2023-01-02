@@ -12,4 +12,10 @@ python3 -m uvicorn scraper_app.main:app --reload --port 8001
 
 Access OpenAPI docs at:
 
-http://127.0.0.1:8001/openapi/
+<http://127.0.0.1:8001/openapi/>
+
+Metrics at 
+
+<http://localhost:8001/metrics/>
+
+Custom one named price_failures

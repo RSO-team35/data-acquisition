@@ -1,17 +1,22 @@
 from . import schemas
 from typing import List
 from pydantic import HttpUrl
-import requests
+import httpx
 from bs4 import BeautifulSoup
 from datetime import datetime
 from lxml import etree as et
 import os
+import random
+from prometheus_client import Counter
+
+
+fails = Counter("price_failures", "number of errors when getting updated price", labelnames=["retailer", "result"])
 
 
 def get_rate():
     try:
-        response = requests.get("https://open.er-api.com/v6/latest/USD")
-        if not response.ok:
+        response = httpx.get("https://open.er-api.com/v6/latest/USD")
+        if response.status_code != 200:
             return -1
         rates = response.json()["rates"]
     except:
@@ -38,14 +43,19 @@ def get_all_prices(items: List[schemas.ProductSpec]) -> List[schemas.Price]:
     return prices
 
 
-def get_all_prices2(rate):
+async def get_all_prices2(rate):
     # get links
-    data_keeping_ip = "0.0.0.0:8000" #os.environ["DATA_KEEPING_IP"]
+    try:
+        data_keeping_ip = os.environ["DATA_KEEPING_IP"]
+    except:
+        data_keeping_ip = "0.0.0.0:8000"
+
     headers = {
     'accept': 'application/json',
     }
     print("getting urls")
-    response = requests.get(f"http://{data_keeping_ip}/products/urls/", headers=headers)
+    async with httpx.AsyncClient() as client:
+        response = await client.get(f"http://{data_keeping_ip}/products/urls/", headers=headers)
     urls = response.json()
 
     print("getting prices")
@@ -64,10 +74,27 @@ def get_all_prices2(rate):
             print(f"Incorrect retailer name: {item.retailer}")
         
         print(item_price)
+        if item_price.price > 0:
+            fails.labels(item.retailer, "sucess").inc()
+        else:
+            fails.labels(item.retailer, "fail").inc()
         price = schemas.PriceInfo(model=item.model, name=item.name, price=item_price.price, date=item_price.date, retailer=item_price.retailer, manufacturer=item_price.manufacturer)
         prices.append(price)
     #print(prices)
     return prices
+
+
+fails_test = Counter("price_failures_test", "If there was an error when getting updated price", labelnames=["retailer", "result"])
+
+def get_price(product_name=None):
+    # placeholder
+    p = round(300 + random.uniform(-30, 30), 2)
+    if p < 300:
+        fails_test.labels("Mimovrste", "sucess").inc()
+    else:
+        fails_test.labels("Mimovrste", "fail").inc()
+    price = schemas.PriceInfo(model="Dual", name="GeForce RTX 3060", price=p, date=datetime.now(), retailer="Mimovrste", manufacturer="ASUS")
+    return price 
 
 
 def get_price_mimovrste(item: schemas.ProductSpec):
@@ -77,8 +104,8 @@ def get_price_mimovrste(item: schemas.ProductSpec):
                                 retailer=item.retailer, 
                                 manufacturer=item.manufacturer)
     try:
-        response = requests.get(item.url)
-        if not response.ok:
+        response = httpx.get(item.url)
+        if response.status_code != 200:
             print(f"Response: {response.status_code}")
             return price_item
 
@@ -108,9 +135,9 @@ def get_price_amazon(item: schemas.ProductSpec):
 
     try:
         headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:80.0) Gecko/20100101 Firefox/80.0'}
-        response = requests.get(item.url, headers=headers)
+        response = httpx.get(item.url, headers=headers)
         print(response.status_code)
-        if not response.ok:
+        if response.status_code != 200:
             print(f"Response: {response.status_code}")
             return price_item
 
@@ -146,8 +173,8 @@ def get_price_microcenter(item: schemas.ProductSpec, rate: float):
 
     try:
         headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:80.0) Gecko/20100101 Firefox/80.0'}
-        response = requests.get(item.url, headers=headers)
-        if not response.ok:
+        response = httpx.get(item.url, headers=headers)
+        if response.status_code != 200:
             print(f"Response: {response.status_code}")
             return None
         soup = BeautifulSoup(response.text, "lxml")
