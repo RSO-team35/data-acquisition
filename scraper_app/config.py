@@ -33,7 +33,7 @@ except:
 
 class EventHandler(LoggingEventHandler):
     def on_modified(self, event):
-        print(event)
+        #print(event)
         global test_outage,data_keeping_ip
         with open("/etc/config/test-outage", "r") as f:
             test_outage = f.read()
