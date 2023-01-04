@@ -38,7 +38,7 @@ class EventHandler(LoggingEventHandler):
             test_outage = f.read()
 
 try:
-    path = "/etc/config/test-outage"
+    path = "/etc/config"
     eventHandler = EventHandler()
     observer = Observer()
     observer.schedule(eventHandler,path,recursive=True)

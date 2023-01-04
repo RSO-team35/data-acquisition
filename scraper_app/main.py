@@ -58,6 +58,9 @@ async def get_liveness():
     print("current config:")
     print(config.data_keeping_ip)
     print(config.test_outage)
+    try:
+        with open("/etc/config/test-outage", "r") as f:
+            print(f.read())
 
 
 @app.get("/health/readiness/", status_code=status.HTTP_200_OK, tags=["health"])
