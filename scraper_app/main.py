@@ -4,6 +4,7 @@ from . import schemas, utility
 import time 
 from starlette_prometheus import metrics, PrometheusMiddleware
 
+from . import config
 
 description = "Service for getting prices"
 tags_metadata = [
@@ -16,7 +17,6 @@ tags_metadata = [
         "description": "Operations checking service health status"
     }
 ]
-
 
 app = FastAPI(title="Price scraper", description=description, openapi_tags=tags_metadata, docs_url="/openapi")
 app.processing = False # if we do a long operation
@@ -51,10 +51,15 @@ def get_price(product_name: str):
 
 
 @app.get("/health/liveness/", status_code=status.HTTP_200_OK, tags=["health"])
-async def get_liveness():
+async def get_liveness(response:Response):
     """
     Checks liveness
     """
+    if config.test_outage == "true":
+        response.status_code=status.HTTP_503_SERVICE_UNAVAILABLE
+
+    return {"Outage testing":config.test_outage}
+
 
 @app.get("/health/readiness/", status_code=status.HTTP_200_OK, tags=["health"])
 async def get_readiness():
