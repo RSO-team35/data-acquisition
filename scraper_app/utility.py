@@ -49,6 +49,7 @@ async def get_all_prices2(rate):
         data_keeping_ip = os.environ["DATA_KEEPING_IP"]
     except:
         data_keeping_ip = "0.0.0.0:8000"
+        assert 0, "No env variable"
 
     headers = {
     'accept': 'application/json',
