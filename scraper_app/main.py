@@ -61,6 +61,8 @@ async def get_liveness():
     try:
         with open("/etc/config/test-outage", "r") as f:
             print(f.read())
+    except:
+        pass
 
 
 @app.get("/health/readiness/", status_code=status.HTTP_200_OK, tags=["health"])
