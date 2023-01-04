@@ -50,7 +50,7 @@ def get_price(product_name: str):
     return price
 
 
-@app.get("/health/liveness/", status_code=status.HTTP_200_OK, tags=["health"])
+@app.get("/health/liveness/", status_code=status.HTTP_503_SERVICE_UNAVAILABLE if config.test_outage == "true" else status.HTTP_200_OK, tags=["health"])
 async def get_liveness():
     """
     Checks liveness
@@ -63,6 +63,7 @@ async def get_liveness():
             print(f.read())
     except:
         pass
+    return {"Outage testing":config.test_outage}
 
 
 @app.get("/health/readiness/", status_code=status.HTTP_200_OK, tags=["health"])

@@ -33,9 +33,10 @@ except:
 
 class EventHandler(LoggingEventHandler):
     def on_modified(self, event):
-        print(event)
         with open("/etc/config/test-outage", "r") as f:
             test_outage = f.read()
+        with open("/etc/config/data-keeping-ip", "r") as f:
+            data_keeping_ip = f.read()
 
 try:
     path = "/etc/config"
