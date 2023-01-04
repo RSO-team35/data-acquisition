@@ -32,9 +32,11 @@ except:
 #setup dynamic reconfig for test_outage
 
 class EventHandler(LoggingEventHandler):
-    def on_modified(self, event):
+    def dispatch(self, event):
+        print(event)
         with open("/etc/config/test-outage", "r") as f:
             test_outage = f.read()
+            print(test_outage)
         with open("/etc/config/data-keeping-ip", "r") as f:
             data_keeping_ip = f.read()
 
