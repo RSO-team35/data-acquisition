@@ -50,14 +50,16 @@ def get_price(product_name: str):
     return price
 
 
-@app.get("/health/liveness/", status_code=status.HTTP_503_SERVICE_UNAVAILABLE if config.test_outage == "true" else status.HTTP_200_OK, tags=["health"])
-async def get_liveness():
+@app.get("/health/liveness/", status_code=status.HTTP_200_OK, tags=["health"])
+async def get_liveness(response:Response):
     """
     Checks liveness
     """
     print("current config:")
     print(config.data_keeping_ip)
     print(config.test_outage)
+    if config.test_outage == "true":
+        response.status_code=status.HTTP_503_SERVICE_UNAVAILABLE
     try:
         with open("/etc/config/test-outage", "r") as f:
             print(f.read())

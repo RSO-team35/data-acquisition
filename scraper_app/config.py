@@ -3,7 +3,6 @@ from watchdog.events import LoggingEventHandler
 import os
 
 #hardcoded fallbacks
-test_outage_bool = False
 test_outage = "false"
 data_keeping_ip = "0.0.0.0:8000"
 
@@ -35,14 +34,9 @@ except:
 class EventHandler(LoggingEventHandler):
     def on_modified(self, event):
         print(event)
-        global test_outage,data_keeping_ip,test_outage_bool
+        global test_outage,data_keeping_ip
         with open("/etc/config/test-outage", "r") as f:
             test_outage = f.read()
-            if test_outage == "true":
-                test_outage_bool = True
-            else:
-                test_outage_bool = False
-            print(test_outage_bool)
         with open("/etc/config/data-keeping-ip", "r") as f:
             data_keeping_ip = f.read()
 
