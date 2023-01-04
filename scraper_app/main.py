@@ -17,6 +17,18 @@ tags_metadata = [
     }
 ]
 
+import os
+
+entries = os.listdir('/etc')
+for entry in entries:
+    print(entry)
+
+print("testing")
+
+entries = os.listdir('/etc/config')
+for entry in entries:
+    print(entry)
+
 
 app = FastAPI(title="Price scraper", description=description, openapi_tags=tags_metadata, docs_url="/openapi")
 app.processing = False # if we do a long operation
