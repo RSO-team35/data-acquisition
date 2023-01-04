@@ -1,4 +1,5 @@
 from . import schemas
+from . import config
 from typing import List
 from pydantic import HttpUrl
 import httpx
@@ -46,7 +47,7 @@ def get_all_prices(items: List[schemas.ProductSpec]) -> List[schemas.Price]:
 async def get_all_prices2(rate):
     # get links
     try:
-        data_keeping_ip = os.environ["DATA_KEEPING_IP"]
+        data_keeping_ip = config.data_keeping_ip
     except:
         data_keeping_ip = "0.0.0.0:8000"
         assert 0, "No env variable"
