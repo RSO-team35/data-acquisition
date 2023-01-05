@@ -68,7 +68,6 @@ async def get_readiness(response: Response):
     """
     r = httpx.get("https://www.google.com/") # check internet connection
     if r.is_error:
-        response.status_code = status.HTTP_400_BAD_REQUEST
+        response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
 
-    return response
     
