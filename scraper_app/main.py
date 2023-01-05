@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import Depends, FastAPI, HTTPException, status, Response
 from . import schemas, utility
-import time 
+import httpx
 from starlette_prometheus import metrics, PrometheusMiddleware
 
 from . import config
@@ -51,23 +51,24 @@ def get_price(product_name: str):
 
 
 @app.get("/health/liveness/", status_code=status.HTTP_200_OK, tags=["health"])
-async def get_liveness(response:Response):
+async def get_liveness(response: Response):
     """
     Checks liveness
     """
     if config.test_outage == "true":
-        response.status_code=status.HTTP_503_SERVICE_UNAVAILABLE
+        response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
 
     return {"Outage testing":config.test_outage}
 
 
 @app.get("/health/readiness/", status_code=status.HTTP_200_OK, tags=["health"])
-async def get_readiness():
+async def get_readiness(response: Response):
     """
-    Checks readiness
+    Checks readiness, returns OK if it has internet connection
     """
-    
-# health - timeouts?  - if there is no internet access or website is down?
+    r = httpx.get("https://www.google.com/") # check internet connection
+    if r.is_error:
+        response.status_code = status.HTTP_400_BAD_REQUEST
 
-
+    return response
     
